@@ -1,0 +1,108 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form id="registerForm" method="post" enctype="multipart/form-data">
+            <h2>Создайте новый аккаунт.</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6">Фото профиля: </div>
+                <div class="col-md-5">
+                    <div id="form-floating file-send-container">
+                        <div id="dropContainer" draggable="true" >
+                            <img src="~/img/input-photo.png" id="input-img-user-photo" height="150" width="150" style="border-radius: 30%;border:2px solid black;"/>
+                        </div>
+                
+                        <div class="custom-file"> 
+                            <input asp-for="Input.Photo" type="file" class="form-control custom-file-input" id="fileInput" aria-required="true" hidden>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-floating register-input">
+                <input asp-for="Input.FirstName" class="form-control" aria-required="true"/>
+                <label asp-for="Input.FirstName"></label>
+                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-floating register-input">
+                <input asp-for="Input.LastName" class="form-control" aria-required="true" />
+                <label asp-for="Input.LastName"></label>
+                <span asp-validation-for="Input.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-floating register-input">
+                <input asp-for="Input.Login" class="form-control" autocomplete="username" aria-required="true" />
+                <label asp-for="Input.Login"></label>
+                <span asp-validation-for="Input.Login" class="text-danger"></span>
+            </div>
+            <div class="form-floating register-input">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.Password"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating register-input">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.ConfirmPassword"></label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <button id="registerSubmit" type="submit" class="register-input w-100 btn btn-lg btn-primary">Зарегистрироваться</button>
+        </form>
+    </div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+        </section>
+    </div>
+</div>
+
+<script>
+
+dropContainer.ondragenter =  dropContainer.ondragover = function(evt) {
+  evt.preventDefault();
+};
+
+dropContainer.ondrop = function(evt) {
+
+    const dataTransfer = new DataTransfer();
+
+    for(let i = 0; i < evt.dataTransfer.files.length; i++)
+        dataTransfer.items.add(evt.dataTransfer.files[i]);
+
+    for(let i = 0; i < fileInput.files.length; i++)
+        dataTransfer.items.add(fileInput.files[i]);
+
+    $(".files-list").html("");
+    for(let i = 0; i < dataTransfer.files.length; i++)
+        $(".files-list").append($("<li>").addClass("list-group-item").text(dataTransfer.files[i].name));
+
+    $("#convert-button").css('visibility', 'visible');
+    
+    fileInput.files = dataTransfer.files;
+
+    var selectedFile = event.dataTransfer.files[0];
+    var reader = new FileReader();
+
+    var imgtag = document.getElementById("input-img-user-photo");
+    imgtag.title = selectedFile.name;
+
+    reader.onload = function (event) {
+        imgtag.src = event.target.result;
+    };
+
+    reader.readAsDataURL(selectedFile);
+
+  evt.preventDefault();
+};
+
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

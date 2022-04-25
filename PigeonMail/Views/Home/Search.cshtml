@@ -1,0 +1,27 @@
+﻿<h1>Поиск собеседников</h1>
+<div class="search-container">
+    <div class="input-group mb-3">
+        <input id="searchInput" type="text" class="form-control" placeholder="Введите имя или фамилию" aria-label="Введите имя или фамилию" aria-describedby="basic-addon2" />
+        <div class="input-group-append">
+            <button id="searchButton" class="btn btn-outline-secondary" type="button">Поиск</button>
+        </div>
+    </div>
+</div>
+
+<div id="search-results" style="height:90%;overflow-y:auto; overflow-x: hidden;">
+
+</div>
+
+<script>
+        searchInput.onkeydown = function(e){
+            if(e.which == 13){
+                search(searchInput.value);
+                e.preventDefault();
+            }
+        };
+
+        searchButton.onclick = function(e){
+            search(searchInput.value);
+        }
+
+</script>

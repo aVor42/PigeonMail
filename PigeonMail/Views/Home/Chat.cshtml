@@ -1,0 +1,103 @@
+﻿@model Chat
+
+<div class="box" id="chat-container" data-chat-id="@Model.Id">
+    <div id="chat-container-header">
+        <div class="row" style="height:100%;">
+            <div class="col-md-1 go-back-text" onclick="goToChats()">
+                Назад
+            </div>
+            <div class="col-md-1">
+                <div class="vertical-left"></div>
+            </div>
+            <div class="col-md-9 chat-dialog-name">
+                Диалог с @ViewData["ChatName"]
+            </div>
+        </div>
+    </div>
+
+    <div class="messages-container">
+
+        @{
+            foreach(var message in Model.Messages)
+            {
+                <div class="message-container">
+                    <div class="row" style="height:100%;">
+                        <div class="col-md-1">
+                            <img src="/Users/GetPhoto?id=@message.User.Id" height=60 width=60 style="border-radius:100%; margin-left:10px; margin-top:3px" />
+                        </div>
+                        <div class="col-md-10">
+                            <div class="message-container-sender-name">@message.User.FirstName @message.User.LastName</div>
+                            <div class="message-container-text">@message.Text</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+
+    </div>
+
+    <div class="message-input-container">
+        <div class="row" style="height: 100%;">
+            <div class="col-md-2">
+                Ваше сообщение:
+            </div>
+            <div class="col-md-10">
+                <input class="message-input" id="messageInput" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    readAllMessagesFromChat(@Model.Id);
+
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chat-hub")
+            .build();
+        let connectionId = "";
+
+        messageInput.onkeydown = function(e){
+            if(e.which == 13){
+
+                const data = new FormData();
+                data.append("message", messageInput.value);
+                data.append("connectionId", connectionId);
+
+                let container = document.getElementById("chat-container");
+                let chatId = container.getAttribute("data-chat-id");
+
+                data.append("chatId", chatId);
+                 
+                fetch("/Home/SandMessage", {
+                    method: "POST",
+                    body: data
+                })
+                .catch(error => console.error("Error: ", error));
+
+                messageInput.value = ""
+                e.preventDefault();
+            }
+        };
+
+        // получение сообщения от сервера
+        hubConnection.on("Notify", function (data) {
+
+            let container = document.getElementById("chat-container");
+            let chatId = container.getAttribute("data-chat-id");
+
+            if (chatId == data.ChatId){
+                setMessage(data.Message, data.UserFullName, `/Users/GetPhoto?id=${data.UserId}`);
+                readAllMessagesFromChat(@Model.Id);
+            }
+                
+ 
+        });
+
+        hubConnection.start().then(() => {
+            // после соединения получаем id подключения
+            console.log(hubConnection.connectionId);
+            connectionId = hubConnection.connectionId;
+        });
+</script>

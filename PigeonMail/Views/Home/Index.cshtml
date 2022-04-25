@@ -1,0 +1,51 @@
+﻿@model List<Dictionary<string, object>>
+
+
+@{
+
+    foreach(var chat in Model)
+    {
+        <div class="chat-row" onclick="goToChat(@chat["Id"])">
+
+            <div class="row" style="height:100%;">
+                <div class="col-md-1">
+                    <img src="/Users/GetPhoto?id=@chat["IdMember"]" height=60 width=60 style="border-radius:100%; margin-left:10px; margin-top:3px" />
+                </div>
+                <div class="col-md-10">
+                    <div class="message-container-sender-name">@chat["ChatName"]</div>
+                    <div class="unread-messages-count-container" data-chat-id="@chat["Id"]" data-count="@chat["UnreadMessagesCount"]">
+                        @if((int)chat["UnreadMessagesCount"] > 0)
+                        {
+                            <span class="unread-messages-count">
+                                Непрочитанных сообщений: @chat["UnreadMessagesCount"]
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <hr style="margin:0px" />
+
+        </div>
+
+    }
+
+}
+
+<script>
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chat-hub")
+        .build();
+    let connectionId = "";
+
+            // получение сообщения от сервера
+    hubConnection.on("Notify", function (data) {
+            increaseUnreadMessagesCount(data.ChatId)
+        });
+
+        hubConnection.start().then(() => {
+            // после соединения получаем id подключения
+            console.log(hubConnection.connectionId);
+            connectionId = hubConnection.connectionId;
+        });
+
+</script>
